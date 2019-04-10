@@ -5,7 +5,7 @@ import java.util.Random;
 
 import pkgHelper.LatinSquare;
 
-/**
+/** Test Commit
  * Sudoku - This class extends LatinSquare, adding methods, constructor to
  * handle Sudoku logic
  * 
