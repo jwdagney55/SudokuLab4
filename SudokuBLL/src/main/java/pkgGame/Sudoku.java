@@ -2,6 +2,7 @@ package pkgGame;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.Random;
 
@@ -36,6 +37,8 @@ public class Sudoku extends LatinSquare {
 	 */
 
 	private int iSqrtSize;
+	
+	private HashMap<Integer, Sudoku.Cell> cells;
 
 	/**
 	 * Sudoku - for Lab #2... do the following:
@@ -412,11 +415,48 @@ public class Sudoku extends LatinSquare {
 			ar[i] = a;
 		}
 	}
+	private java.util.HashSet<java.lang.Integer> getAllValidCellValues(int iCol, int iRow){
+		java.util.HashSet<java.lang.Integer> validValues=new java.util.HashSet<java.lang.Integer>();
+		int[] colVals=getColumn(iCol);
+		int[] rowVals=getRow(iRow);
+		int[] regVals=getRegion(iCol, iRow);
+		
+		for (int val=1; val<=this.iSize; val++) {
+			validValues.add(val);
+		}
+		for (int val : colVals) {
+			validValues.remove(val);
+		}
+		for (int val : rowVals) {
+			validValues.remove(val);
+		}
+		for (int val : regVals) {
+			validValues.remove(val);
+		}
+		
+		return validValues;
+	}
+	
+	public boolean isValidValue(Sudoku.Cell c, int iValue) {
+		boolean match = false;
+		if(isValidValue(c.getiRow(),c.getiCol(),iValue)) {
+			match = true;
+		}
+		return match;
+		
+	}
+
 	
 	private class Cell {
 		private int iRow;
 		private int iCol;
 		private ArrayList<Integer> lstValidValues = new ArrayList<>();
+		
+		public Cell(int iRow, int iCol) {
+			this.iRow = iRow;
+			this.iCol = iCol;
+			setlstValidValues(getAllValidCellValues(this.iRow,this.iCol));
+		}
 		
 		public int hashCode() {
 			return Objects.hash(iRow,iCol);
@@ -430,7 +470,7 @@ public class Sudoku extends LatinSquare {
 			return equiv;
 		}
 		
-		private Object getiCol() {
+		private int getiCol() {
 			return iRow;
 		}
 		
@@ -438,7 +478,28 @@ public class Sudoku extends LatinSquare {
 			return iRow;
 		}
 		
-}
+		public void setlstValidValues(java.util.HashSet<java.lang.Integer> valList) {
+			java.util.ArrayList<java.lang.Integer> arrList=new java.util.ArrayList<java.lang.Integer>();
+			for (java.lang.Integer value : valList) {
+				arrList.add(value);
+			}
+			lstValidValues=arrList;
+		}
+		
+		public Cell GetNextCell(Cell current) {
+			int newRow = current.getiRow();
+			int newCol = current.getiCol();
+			if (current.getiCol() < iSize - 1) {
+				newCol++;
+			} else if (current.getiCol() == (iSize - 1) && current.getiRow() == (iSize - 1)) {
+				return null;
+			} else {
+				newRow++;
+				newCol = 0;
+			}
+			return new Cell(newRow, newCol);
+		}
+	}
 
 
 }
