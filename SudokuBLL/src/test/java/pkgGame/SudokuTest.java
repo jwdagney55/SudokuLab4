@@ -122,6 +122,13 @@ public class SudokuTest {
 		}
 
 	}
+	
+	@Test
+	public void SetCellsTest() throws Exception {
+		Sudoku puzzle = new Sudoku(9);
+		puzzle.getPuzzle()[0][3]=2;
+		
+	}
 
 
 

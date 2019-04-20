@@ -2,6 +2,7 @@ package pkgGame;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Random;
@@ -67,6 +68,7 @@ public class Sudoku extends LatinSquare {
 		int[][] puzzle = new int[iSize][iSize];
 		super.setLatinSquare(puzzle);
 		FillDiagonalRegions();
+		SetCells();
 	}
 
 	/**
@@ -421,6 +423,11 @@ public class Sudoku extends LatinSquare {
 		int[] rowVals=getRow(iRow);
 		int[] regVals=getRegion(iCol, iRow);
 		
+		if(this.getPuzzle()[iRow][iCol]>0)
+		{
+			validValues.add(this.getPuzzle()[iRow][iCol]);
+			return validValues;
+		}
 		for (int val=1; val<=this.iSize; val++) {
 			validValues.add(val);
 		}
@@ -445,7 +452,31 @@ public class Sudoku extends LatinSquare {
 		return match;
 		
 	}
+	private void SetCells() {
+		for(int iRow = 0; iRow < iSize; iRow++) {
+			for(int iCol = 0; iCol < iSize; iCol++) {
+				Cell c = new Cell(iRow,iCol);
+				c.setlstValidValues(getAllValidCellValues(iRow,iCol));
+				c.ShuffleValidValues();
+			}
+		}
+	}
+	
+	
+	private boolean fillRemaining(Cell c) {
+		if (c==null)
+			return true;
+		
+		for(int num: c.getlstValidValues()) {
+			this.getPuzzle()[c.getiRow()][c.getiCol()]=num;
+			if(fillRemaining(c.GetNextCell(c)))
+				return true;
+			this.getPuzzle()[c.getiRow()][c.getiCol()] = 0;
+			}
 
+		
+		return false;
+	}
 	
 	private class Cell {
 		private int iRow;
@@ -455,7 +486,7 @@ public class Sudoku extends LatinSquare {
 		public Cell(int iRow, int iCol) {
 			this.iRow = iRow;
 			this.iCol = iCol;
-			setlstValidValues(getAllValidCellValues(this.iRow,this.iCol));
+			//setlstValidValues(getAllValidCellValues(this.iRow,this.iCol));
 		}
 		
 		public int hashCode() {
@@ -464,6 +495,10 @@ public class Sudoku extends LatinSquare {
 	}
 		public boolean equals(Object obj) {
 			boolean equiv = false;
+			if(obj == this)
+				equiv = true;
+			if (!(obj instanceof Cell))
+				equiv =  false;
 			Cell c1 = (Cell) obj;
 			if(this.getiRow() == c1.getiRow() && this.getiCol() == c1.getiCol())
 				equiv = true;
@@ -471,7 +506,7 @@ public class Sudoku extends LatinSquare {
 		}
 		
 		private int getiCol() {
-			return iRow;
+			return iCol;
 		}
 		
 		private int getiRow() {
@@ -479,11 +514,11 @@ public class Sudoku extends LatinSquare {
 		}
 		
 		public void setlstValidValues(java.util.HashSet<java.lang.Integer> valList) {
-			java.util.ArrayList<java.lang.Integer> arrList=new java.util.ArrayList<java.lang.Integer>();
-			for (java.lang.Integer value : valList) {
-				arrList.add(value);
-			}
-			lstValidValues=arrList;
+			lstValidValues=new ArrayList<Integer>(valList);
+		}
+		
+		public ArrayList<Integer> getlstValidValues(){
+			return lstValidValues;
 		}
 		
 		public Cell GetNextCell(Cell current) {
@@ -498,6 +533,10 @@ public class Sudoku extends LatinSquare {
 				newCol = 0;
 			}
 			return new Cell(newRow, newCol);
+		}
+		
+		public void ShuffleValidValues() {
+			Collections.shuffle(getlstValidValues());
 		}
 	}
 
